@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -131,16 +130,9 @@ abstract class ApiRequest<ResponseType> {
                       HttpClient client,
                       ResponseHandler<ResponseType> responseHandler,
                       String path) {
-        this(session, client, responseHandler, path, ResponseCodes.SUPPRESS, Redirects.SUPPRESS, null);
+        this(session, client, responseHandler, path, ResponseCodes.SUPPRESS, Redirects.SUPPRESS);
     }
-    public ApiRequest(LiveConnectSession session,
-        			  HttpClient client,
-                      ResponseHandler<ResponseType> responseHandler,
-                      String path,
-                      List<NameValuePair> params) {
-    	this(session, client, responseHandler, path, ResponseCodes.SUPPRESS, Redirects.SUPPRESS, params);
-    }
-    
+
     /**
      * Constructs a new instance of an ApiRequest and initializes its member variables
      *
@@ -148,16 +140,13 @@ abstract class ApiRequest<ResponseType> {
      * @param client to make Http Requests on
      * @param responseHandler to handle the response
      * @param path of the request. it can be relative or absolute.
-     * 
-     * @param params for the request like offset, limit, filter (null = no parameter)
      */
     public ApiRequest(LiveConnectSession session,
                       HttpClient client,
                       ResponseHandler<ResponseType> responseHandler,
                       String path,
                       ResponseCodes responseCodes,
-                      Redirects redirects,
-                      List<NameValuePair> params) {
+                      Redirects redirects) {
         assert session != null;
         assert client != null;
         assert responseHandler != null;
@@ -185,15 +174,7 @@ abstract class ApiRequest<ResponseType> {
 
         responseCodes.setQueryParameterOn(builder);
         redirects.setQueryParameterOn(builder);
-        
-        if(params != null)
-        {
-        	for(NameValuePair pair: params)
-        	{
-        		builder = builder.appendQueryParameter(pair.getName(),pair.getValue());
-        	}
-        }
-  
+
         this.requestUri = builder;
     }
 
@@ -268,4 +249,4 @@ abstract class ApiRequest<ResponseType> {
      * @throws LiveOperationException if there is an error creating the HttpRequest
      */
     protected abstract HttpUriRequest createHttpRequest() throws LiveOperationException;
-} 
+}
