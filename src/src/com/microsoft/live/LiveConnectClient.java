@@ -24,12 +24,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
@@ -920,7 +922,7 @@ public class LiveConnectClient {
     public LiveOperation get(String path) throws LiveOperationException {
         assertValidRelativePath(path);
 
-        GetRequest request = new GetRequest(this.session, this.httpClient, path);
+        GetRequest request = new GetRequest(this.session, this.httpClient, path, null);
         return execute(request);
     }
 
@@ -932,13 +934,14 @@ public class LiveConnectClient {
      * be called. Both of these methods will be called on the main/UI thread.
      *
      * @param path of the resource to retrieve.
+     * @param params for the request like offset, limit, filter (null = no parameter)
      * @param listener called on either completion or error during the get request.
      * @return the LiveOperation associated with the request.
      * @throws IllegalArgumentException if the path is empty or an absolute uri.
      * @throws NullPointerException if the path is null.
      */
-    public LiveOperation getAsync(String path, LiveOperationListener listener) {
-        return this.getAsync(path, listener, null);
+    public LiveOperation getAsync(String path, List<NameValuePair> params, LiveOperationListener listener) {
+        return this.getAsync(path, params, listener, null);
     }
 
     /**
@@ -949,19 +952,20 @@ public class LiveConnectClient {
      * be called. Both of these methods will be called on the main/UI thread.
      *
      * @param path object_id of the resource to retrieve.
+     * @param params for the request like offset, limit, filter (null = no parameter)
      * @param listener called on either completion or error during the get request.
      * @param userState arbitrary object that is used to determine the caller of the method.
      * @return the LiveOperation associated with the request.
      * @throws IllegalArgumentException if the path is empty or an absolute uri.
      * @throws NullPointerException if the path is null.
      */
-    public LiveOperation getAsync(String path, LiveOperationListener listener, Object userState) {
+    public LiveOperation getAsync(String path, List<NameValuePair> params, LiveOperationListener listener, Object userState) {
         assertValidRelativePath(path);
         if (listener == null) {
             listener = NULL_OPERATION_LISTENER;
         }
 
-        GetRequest request = new GetRequest(this.session, this.httpClient, path);
+        GetRequest request = new GetRequest(this.session, this.httpClient, path, params);
         return executeAsync(request, listener, userState);
     }
 
